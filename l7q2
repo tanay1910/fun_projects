@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 10 // Change this to your desired array size
+
+// Define a structure for a circular queue
+struct CircularQueue {
+    int data[MAX_SIZE];
+    int front, rear;
+};
+
+// Function to initialize a circular queue
+void initialize(struct CircularQueue *queue) {
+    queue->front = -1;
+    queue->rear = -1;
+}
+
+// Function to check if the queue is empty
+int isEmpty(struct CircularQueue *queue) {
+    return (queue->front == -1);
+}
+
+// Function to check if the queue is full
+int isFull(struct CircularQueue *queue) {
+    return ((queue->front == 0 && queue->rear == MAX_SIZE - 1) || (queue->front == queue->rear + 1));
+}
+
+// Function to insert an element into the circular queue
+void insert(struct CircularQueue *queue, int value) {
+    if (isFull(queue)) {
+        printf("Queue is full. Cannot insert.\n");
+        return;
+    }
+
+    if (isEmpty(queue)) {
+        queue->front = 0;
+        queue->rear = 0;
+    } else {
+        queue->rear = (queue->rear + 1) % MAX_SIZE;
+    }
+
+    queue->data[queue->rear] = value;
+}
+
+// Function to delete an element from the circular queue
+int delete(struct CircularQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty. Cannot delete.\n");
+        return -1; // Return a sentinel value to indicate an error
+    }
+
+    int deletedValue = queue->data[queue->front];
+
+    if (queue->front == queue->rear) {
+        // Only one element in the queue
+        queue->front = -1;
+        queue->rear = -1;
+    } else {
+        queue->front = (queue->front + 1) % MAX_SIZE;
+    }
+
+    return deletedValue;
+}
+
+// Function to display the circular queue
+void display(struct CircularQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty.\n");
+        return;
+    }
+
+    int i = queue->front;
+    printf("Circular Queue:\n");
+    do {
+        printf("%d ", queue->data[i]);
+        i = (i + 1) % MAX_SIZE;
+    } while (i != (queue->rear + 1) % MAX_SIZE);
+    printf("\n");
+}
+
+int main() {
+    struct CircularQueue queue1, queue2;
+    initialize(&queue1);
+    initialize(&queue2);
+
+    int N = MAX_SIZE / 2; // N/2
+
+    // Insert elements into the first queue (0 to N/2 - 1)
+    for (int i = 0; i < N; i++) {
+        insert(&queue1, i * 2); // Even numbers
+    }
+
+    // Insert elements into the second queue (N/2 to N - 1)
+    for (int i = N; i < MAX_SIZE; i++) {
+        insert(&queue2, i * 2 + 1); // Odd numbers
+    }
+
+    // Display both queues
+    printf("Queue 1:\n");
+    display(&queue1);
+
+    printf("Queue 2:\n");
+    display(&queue2);
+
+    return 0;
+}
