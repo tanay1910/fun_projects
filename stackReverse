@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a structure for a stack node
+struct StackNode {
+    int data;
+    struct StackNode* next;
+};
+
+// Function to initialize an empty stack
+struct StackNode* createStack() {
+    return NULL;
+}
+
+// Function to check if a stack is empty
+int isEmpty(struct StackNode* root) {
+    return (root == NULL);
+}
+
+// Function to push an element onto the stack
+void push(struct StackNode** root, int data) {
+    struct StackNode* newNode = (struct StackNode*)malloc(sizeof(struct StackNode));
+    if (newNode == NULL) {
+        printf("Memory allocation error\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->next = *root;
+    *root = newNode;
+}
+
+// Function to pop an element from the stack
+int pop(struct StackNode** root) {
+    if (isEmpty(*root)) {
+        printf("Stack is empty\n");
+        exit(1);
+    }
+    struct StackNode* temp = *root;
+    int popped = temp->data;
+    *root = (*root)->next;
+    free(temp);
+    return popped;
+}
+
+// Recursive function to insert an element at the bottom of a stack
+void insertAtBottom(struct StackNode** root, int data) {
+    if (isEmpty(*root)) {
+        push(root, data);
+    } else {
+        int temp = pop(root);
+        insertAtBottom(root, data);
+        push(root, temp);
+    }
+}
+
+// Recursive function to reverse a stack
+void reverseStack(struct StackNode** root) {
+    if (!isEmpty(*root)) {
+        int temp = pop(root);
+        reverseStack(root);
+        insertAtBottom(root, temp);
+    }
+}
+
+// Function to print the elements of a stack
+void printStack(struct StackNode* root) {
+    while (root != NULL) {
+        printf("%d ", root->data);
+        root = root->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    struct StackNode* stack = createStack();
+
+    // Push some elements onto the stack
+    push(&stack, 1);
+    push(&stack, 2);
+    push(&stack, 3);
+    push(&stack, 4);
+
+    printf("Original Stack: ");
+    printStack(stack);
+
+    // Reverse the stack
+    reverseStack(&stack);
+
+    printf("Reversed Stack: ");
+    printStack(stack);
+
+    return 0;
+}
