@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 100
+
+// Stack implementation for characters
+struct Stack {
+    char data[MAX];
+    int top;
+};
+
+// Initialize an empty stack
+void initialize(struct Stack* stack) {
+    stack->top = -1;
+}
+
+// Check if the stack is empty
+int isEmpty(struct Stack* stack) {
+    return (stack->top == -1);
+}
+
+// Push a character onto the stack
+void push(struct Stack* stack, char ch) {
+    if (stack->top == MAX - 1) {
+        printf("Stack overflow\n");
+        exit(1);
+    }
+    stack->data[++stack->top] = ch;
+}
+
+// Pop a character from the stack
+char pop(struct Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack underflow\n");
+        exit(1);
+    }
+    return stack->data[stack->top--];
+}
+
+// Get the precedence of an operator
+int getPrecedence(char ch) {
+    if (ch == '+' || ch == '-')
+        return 1;
+    else if (ch == '*' || ch == '/')
+        return 2;
+    else if (ch == '^')
+        return 3;
+    else
+        return 0;
+}
+
+// Convert an infix expression to a prefix expression
+void infixToPrefix(char infixExp[], char prefixExp[]) {
+    struct Stack stack;
+    initialize(&stack);
+    
+    int len = strlen(infixExp);
+    int prefixIndex = 0;
+
+    // Reverse the infix expression
+    for (int i = len - 1; i >= 0; i--) {
+        char ch = infixExp[i];
+
+        if (isalnum(ch)) {
+            // Operand: Add it to the prefix expression
+            prefixExp[prefixIndex++] = ch;
+        } else if (ch == ')') {
+            // Right parenthesis: Push it onto the stack
+            push(&stack, ch);
+        } else if (ch == '(') {
+            // Left parenthesis: Pop and add operators to the prefix expression until a matching ')' is found
+            while (!isEmpty(&stack) && stack.data[stack.top] != ')') {
+                prefixExp[prefixIndex++] = pop(&stack);
+            }
+            if (!isEmpty(&stack) && stack.data[stack.top] == ')') {
+                pop(&stack); // Pop and discard the ')'
+            }
+        } else {
+            // Operator: Pop and add operators to the prefix expression based on precedence
+            while (!isEmpty(&stack) && getPrecedence(stack.data[stack.top]) > getPrecedence(ch)) {
+                prefixExp[prefixIndex++] = pop(&stack);
+            }
+            push(&stack, ch);
+        }
+    }
+
+    // Pop and add remaining operators to the prefix expression
+    while (!isEmpty(&stack)) {
+        prefixExp[prefixIndex++] = pop(&stack);
+    }
+
+    prefixExp[prefixIndex] = '\0'; // Null-terminate the prefix expression
+}
+
+int main() {
+    char infixExpression[MAX];
+    char prefixExpression[MAX * 2]; // Double the size for prefix expression
+
+    printf("Enter an infix expression: ");
+    scanf("%s", infixExpression);
+
+    infixToPrefix(infixExpression, prefixExpression);
+
+    // Reverse the prefix expression to get the final result
+    int len = strlen(prefixExpression);
+    for (int i = 0; i < len / 2; i++) {
+        char temp = prefixExpression[i];
+        prefixExpression[i] = prefixExpression[len - 1 - i];
+        prefixExpression[len - 1 - i] = temp;
+    }
+
+    printf("Prefix expression: %s\n", prefixExpression);
+
+    return 0;
+}
