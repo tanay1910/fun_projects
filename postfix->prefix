@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 100
+
+// Stack implementation for characters
+struct Stack {
+    char data[MAX];
+    int top;
+};
+
+// Initialize an empty stack
+void initialize(struct Stack* stack) {
+    stack->top = -1;
+}
+
+// Check if the stack is empty
+int isEmpty(struct Stack* stack) {
+    return (stack->top == -1);
+}
+
+// Push a character onto the stack
+void push(struct Stack* stack, char ch) {
+    if (stack->top == MAX - 1) {
+        printf("Stack overflow\n");
+        exit(1);
+    }
+    stack->data[++stack->top] = ch;
+}
+
+// Pop a character from the stack
+char pop(struct Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack underflow\n");
+        exit(1);
+    }
+    return stack->data[stack->top--];
+}
+
+// Check if a character is an operator (+, -, *, /, ^)
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+
+// Convert a postfix expression to a prefix expression
+void postfixToPrefix(char postfixExp[]) {
+    struct Stack stack;
+    initialize(&stack);
+
+    int len = strlen(postfixExp);
+
+    for (int i = 0; i < len; i++) {
+        char ch = postfixExp[i];
+
+        if (isalnum(ch)) {
+            // Operand: Push it onto the stack
+            push(&stack, ch);
+        } else if (isOperator(ch)) {
+            // Operator: Pop two operands from the stack and push the result
+            char operand2 = pop(&stack);
+            char operand1 = pop(&stack);
+
+            char result[MAX];
+            sprintf(result, "%c%c%c", ch, operand1, operand2);
+            push(&stack, result[0]);
+        }
+    }
+
+    // The result is stored in the stack
+    printf("Prefix expression: %s\n", stack.data);
+}
+
+int main() {
+    char postfixExpression[MAX];
+    printf("Enter a postfix expression: ");
+    scanf("%s", postfixExpression);
+
+    postfixToPrefix(postfixExpression);
+
+    return 0;
+}
